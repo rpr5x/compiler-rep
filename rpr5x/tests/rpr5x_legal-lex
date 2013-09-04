@@ -1,0 +1,36 @@
+/*legal test case by ruslan ryzhkov*/
+
+VAR pi;
+VAR n;
+VAR index;
+VAR steps;
+VAR radius = 500;
+VAR circ;
+VAR area;
+
+JUMP 100;
+JUMP -10;
+TURN 120;
+TURN -30;
+
+n = 100;
+steps = 500;
+pi = 3.1415;
+circ = 2 * pi * radius;
+area = pi * radius * radius;
+
+FOR index = 1 STEP 1 TO n DO
+BEGIN
+   TURN circ;
+   steps = (500 + index)/n;
+   GO steps;
+   GO sin area/n;
+   TURN 90;
+   GO cos area/n;
+   TURN -90;
+   GO sqrt 16;
+   TURN 360 * 0.5;
+END 
+
+   
+

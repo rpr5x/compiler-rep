@@ -1,0 +1,28 @@
+/*third illegal test case by ruslan ryzhkov
+
+VAR count = 1;
+VAR num, rem;
+
+num = 1024;
+rem = 0;
+
+WHILE (count < 10) DO
+BEGIN
+  rem = num % 2;
+  num = num / 2;
+  count++;
+END
+
+num = 2;
+count = 0;
+
+SELECT CASE (num)
+  CASE (1)
+    count = count * 10;
+  CASE (2)
+    count = count * 5;
+  CASE (3)
+    count = count + 7;
+  CASE DEFAULT
+    count = count + 1;
+END SELECT

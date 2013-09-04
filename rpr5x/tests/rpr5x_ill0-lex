@@ -1,0 +1,10 @@
+/*first illegal test case by ruslan ryzhkov*/
+
+VAR ALPHA;
+VAR Beta;
+VAR gammA;
+VAR ?;
+VAR i_am_using_underscores;
+
+
+

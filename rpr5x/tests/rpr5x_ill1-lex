@@ -1,0 +1,17 @@
+/*second illegal test case by ruslan ryzhkov
+
+VAR myArray[2] = {2,3};
+VAR x = 2;
+VAR y = 3;
+
+IF (x < y || x > y) THEN
+  PRINT "x and y are not equal";
+ELSE
+  PRINT "x and y are equal";
+END IF
+
+FUNCTION add(a, b)
+  VAR sum;
+  sum = a + b;
+  RETURN sum;
+END FUNCTION
