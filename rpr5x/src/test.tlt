@@ -1,0 +1,29 @@
+PROCEDURE a(level,dist)
+{ IF (level > 0) THEN
+  {  SHIFT -45; a(level-1,dist);
+     SHIFT 90; b(level-1,dist);
+     SHIFT -45;
+  }
+  ELSE
+     MOVE dist;
+}
+
+PROCEDURE b(level,dist)
+{ IF(level > 0) THEN
+  {  SHIFT 45; a(level-1,dist);
+     SHIFT -90; b(level-1,dist);
+     SHIFT 45;
+  }
+  ELSE
+     GO dist;
+}
+
+a(12, 5);
+
+VAR x;
+x = 1;
+
+WHILE (x < 3) DO
+BEGIN
+ x = x + 1;
+END
