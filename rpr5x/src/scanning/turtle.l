@@ -1,7 +1,7 @@
 
 %{
 #include "symtab.h"
-#include "turtle.tab.h"
+#include "token.h"
 %}
 
 %%
@@ -45,4 +45,3 @@ sqrt            return SQRT;
 .               fprintf(stderr,"Unexpected character %c (%2X)\n",yytext[0],yytext[0]);
 
 %%
-

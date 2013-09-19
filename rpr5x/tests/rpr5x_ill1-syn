@@ -1,0 +1,23 @@
+//second illegal syntax test case by ruslan ryzhkov
+
+VAR x;
+VAR y;
+VAR z;
+VAR i;
+VAR result;
+VAR n;
+
+x = 1;
+y = 2;
+z = 3;
+n = 10;
+
+FOR i=1 TO n DO
+BEGIN
+  result = x * y + z;
+  result = result + i;
+END
+
+
+
+

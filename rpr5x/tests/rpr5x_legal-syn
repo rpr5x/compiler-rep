@@ -1,0 +1,33 @@
+//legal syntax test case by ruslan ryzhkov
+
+VAR firstside;
+VAR secondside;
+VAR i;
+VAR n;
+VAR area;
+VAR diag;
+
+JUMP 100;
+TURN 90;
+JUMP 100;
+TURN -90;
+
+firstside = 100;
+secondside = 200;
+area = firstside * secondside;
+n = 10;
+diag = sqrt (firstside * firstside + secondside * secondside);
+
+FOR i=1 STEP 1 TO n DO
+BEGIN
+  GO secondside;
+  TURN -90;
+  GO firstside;
+  TURN -90;
+  GO sin area/firstside;
+  TURN 500 * 0.5;
+  GO cos area/secondside;
+  TURN -500 * 0.5;
+  GO diag;
+  TURN 90;
+END 

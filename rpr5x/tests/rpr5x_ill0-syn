@@ -1,0 +1,14 @@
+//first illegal syntax test case by ruslan ryzhkov
+
+VAR a;
+VAR b;
+VAR c3=128;
+
+a = 32;
+b = 64;
+
+GO a;
+GO b;
+GO c3;
+
+
