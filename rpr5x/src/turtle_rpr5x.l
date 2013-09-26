@@ -1,12 +1,11 @@
 
 %{
 #include "symtab.h"
-#include "token.h"
+#include "token-rpr5x.h"
 %}
 
 INTEGER [0-9]+
 FLOAT [0-9]+\.[0-9]+
-ID [a-zA-Z]+
 %%
 
 \/\/.*           ;
@@ -26,6 +25,9 @@ WHILE           return WHILE;
 IF              return IF;
 THEN            return THEN;
 ELSE            return ELSE;
+CALL            return CALL;
+PARAM           return PARAM;
+
 
 sin             return SIN;
 cos             return COS;
@@ -39,16 +41,18 @@ sqrt            return SQRT;
 \(              return OPEN;
 \)              return CLOSE;
 =               return ASSIGN;
-==              return EQUAL;
+\==             return EQUAL;
 \<              return LESS;
 \>              return GREATER;
+\>=             return GREATEROREQUAL;
+\<=             return LESSOREQUAL;
 \,              return COMMA;
 \{              return LEFTBRACE;
 \}              return RIGHTBRACE;
 PROCEDURE       return PROCEDURE;
 
 
-{ID}            { yylval.n = lookup(yytext);
+[a-zA-Z]+       { yylval.n = lookup(yytext);
 	          if(yylval.n == NULL)
                     yylval.n = insert(yytext);
                   return ID;
@@ -61,7 +65,7 @@ PROCEDURE       return PROCEDURE;
 
 %%
 
-main(){
+/*main(){
   int token;
   while((token = yylex()) != 0)
   {
@@ -105,7 +109,7 @@ main(){
       default:             printf("Illegal Character\n"); break;
     }
   }
-}
+}*/
 
 
 

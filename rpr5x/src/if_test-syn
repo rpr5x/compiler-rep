@@ -1,0 +1,38 @@
+VAR myvar;
+
+myvar=4;
+
+// should draw a rectangle
+IF(myvar==4) {
+    MOVE 40;
+    SHIFT 90;
+    MOVE 40;
+    SHIFT 90;
+    MOVE 40;
+    SHIFT 90;
+    MOVE 40;
+    SHIFT 90;
+}
+
+// reset turtle position
+JUMP 80;
+
+//should take ELSE and draw a triangle
+IF(myvar>=7) {
+MOVE 40;
+SHIFT 90;
+MOVE 40;
+SHIFT 90;
+MOVE 40;
+SHIFT 90;
+MOVE 40;
+SHIFT 90;
+} 
+ELSE{
+MOVE 30;
+SHIFT 120;
+MOVE 30;
+SHIFT 120;
+MOVE 30;
+SHIFT 120;
+}

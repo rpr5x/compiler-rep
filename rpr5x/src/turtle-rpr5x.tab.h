@@ -37,8 +37,8 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     GO = 258,
-     TURN = 259,
+     MOVE = 258,
+     SHIFT = 259,
      VAR = 260,
      JUMP = 261,
      FOR = 262,
@@ -52,7 +52,7 @@
      SQRT = 270,
      FLOAT = 271,
      ID = 272,
-     NUMBER = 273,
+     INTEGER = 273,
      SEMICOLON = 274,
      PLUS = 275,
      MINUS = 276,
@@ -60,7 +60,23 @@
      DIV = 278,
      OPEN = 279,
      CLOSE = 280,
-     ASSIGN = 281
+     ASSIGN = 281,
+     LEFTBRACE = 282,
+     RIGHTBRACE = 283,
+     LESS = 284,
+     GREATER = 285,
+     LESSOREQUAL = 286,
+     GREATEROREQUAL = 287,
+     EQUAL = 288,
+     PROCEDURE = 289,
+     PARAM = 290,
+     CALL = 291,
+     IF = 292,
+     THEN = 293,
+     ELSE = 294,
+     WHILE = 295,
+     COMMA = 296,
+     ERROR = 297
    };
 #endif
 
@@ -71,12 +87,12 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 7 "turtle.y"
+#line 7 "turtle-rpr5x.y"
  int i; node *n; double d;
 
 
 /* Line 2068 of yacc.c  */
-#line 80 "turtle.tab.h"
+#line 96 "turtle-rpr5x.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
