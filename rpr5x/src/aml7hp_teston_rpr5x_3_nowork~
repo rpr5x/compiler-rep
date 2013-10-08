@@ -1,0 +1,9 @@
+VAR p;
+VAR m;
+
+m = 5;
+p = (m > 4);
+
+if (p) {
+	MOVE 45;
+}

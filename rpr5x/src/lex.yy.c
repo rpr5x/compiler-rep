@@ -527,7 +527,7 @@ char *yytext;
 #line 1 "turtle_rpr5x.l"
 #line 3 "turtle_rpr5x.l"
 #include "symtab.h"
-#include "token-rpr5x.h"
+#include "turtle-rpr5x.tab.h"
 #line 532 "lex.yy.c"
 
 #define INITIAL 0

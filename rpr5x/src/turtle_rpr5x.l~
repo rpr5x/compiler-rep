@@ -1,7 +1,7 @@
 
 %{
 #include "symtab.h"
-#include "turtle-rpr5x.tab.h"
+#include "turtle_rpr5x.tab.h"
 %}
 
 INTEGER [0-9]+

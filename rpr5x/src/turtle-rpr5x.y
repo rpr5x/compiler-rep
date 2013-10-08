@@ -46,6 +46,7 @@ decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);} ;
 stmtlist: ;
 stmtlist: stmtlist stmt;
 
+
 stmt: ID ASSIGN expr SEMICOLON {printf("/tlt%s exch store\n",$1->symbol);};
 stmt: MOVE expr SEMICOLON {printf("0 rlineto\n");};
 stmt: JUMP expr SEMICOLON {printf("0 rmoveto\n");};
@@ -58,10 +59,10 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 
 
-stmt: IF OPEN cond CLOSE stmtblock {printf("} { ");} ELSE stmtblock {printf("} ifelse\n");};
-stmt: IF OPEN cond CLOSE stmtblock {printf("} if\n");};
+stmt: IF expr stmtblock {printf("} { ");} ELSE stmtblock {printf("} ifelse\n");};
+stmt: IF expr stmtblock {printf("} if\n");};
 
-stmt: WHILE OPEN {printf("{ ");} cond CLOSE {printf("} {exit} ifelse\n");} stmtblock {printf("} loop\n");};
+stmt: WHILE expr {printf("{exit} ifelse\n");} stmtblock {printf("} loop\n");};
 
 
 stmt: PROCEDURE ID {printf("/proc%s { ",$2->symbol);} stmtblock {printf("} def\n");};
@@ -72,7 +73,8 @@ stmt: CALL ID atomic atomic atomic atomic SEMICOLON {printf("proc%s\n", $2->symb
 
 stmtblock: LEFTBRACE stmtlist RIGHTBRACE;
 
-stmt: COPEN stmtlist CCLOSE;	 
+stmt: COPEN stmtlist CCLOSE;
+
  
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
@@ -89,7 +91,7 @@ factor: COS factor { printf("cos ");};
 factor: SQRT factor { printf("sqrt ");};
 factor: atomic;
 
-atomic: OPEN expr CLOSE;
+atomic: OPEN {printf("{ ");} cond CLOSE {printf("} ");}
 atomic: INTEGER {printf("%d ",$1);};
 atomic: FLOAT {printf("%f ",$1);};
 atomic: ID {printf("tlt%s ", $1->symbol);};
@@ -100,8 +102,7 @@ cond: expr GREATER expr {printf("gt\n{ ");};
 cond: expr LESSOREQUAL expr {printf("le\n{ ");};
 cond: expr GREATEROREQUAL expr {printf("ge\n{ ");};
 cond: expr EQUAL expr {printf("eq\n{ ");}; 
-
-
+cond: expr;
 %%
 int yyerror(char *msg)
 {  fprintf(stderr,"Error: %s\n",msg);

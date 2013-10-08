@@ -1,0 +1,18 @@
+VAR i;
+VAR j;
+
+i=0;
+j=1;
+SHIFT 90;
+WHILE(i<8) {
+	WHILE(j<=3) {
+	    SHIFT 20;
+	    SHIFT 270;
+	    IF (j==2) {
+		    SHIFT 5;
+		}
+	    j=j+1;
+	}
+    SHIFT 90;
+    i=i+1;
+}
