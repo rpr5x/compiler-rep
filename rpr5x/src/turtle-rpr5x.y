@@ -91,7 +91,7 @@ factor: COS factor { printf("cos ");};
 factor: SQRT factor { printf("sqrt ");};
 factor: atomic;
 
-atomic: OPEN {printf("{ ");} cond CLOSE {printf("} ");}
+atomic: OPEN {printf("{ ");} cond CLOSE {printf("} ");};
 atomic: INTEGER {printf("%d ",$1);};
 atomic: FLOAT {printf("%f ",$1);};
 atomic: ID {printf("tlt%s ", $1->symbol);};
