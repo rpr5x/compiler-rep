@@ -35,13 +35,14 @@ sqrt            return SQRT;
 
 ;               return SEMICOLON;
 \+              return PLUS;
--               return MINUS;
+\-              return MINUS;
 \*              return TIMES;
 \/              return DIV;
 \(              return OPEN;
 \)              return CLOSE;
 =               return ASSIGN;
 \==             return EQUAL;
+\!=             return NOTEQUAL;
 \<              return LESS;
 \>              return GREATER;
 \>=             return GREATEROREQUAL;
@@ -49,6 +50,9 @@ sqrt            return SQRT;
 \,              return COMMA;
 \{              return LEFTBRACE;
 \}              return RIGHTBRACE;
+"["             return LEFTBRACKET;
+"]"             return RIGHTBRACKET;
+
 PROCEDURE       return PROCEDURE;
 
 

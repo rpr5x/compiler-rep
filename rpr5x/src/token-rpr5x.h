@@ -40,7 +40,8 @@
 #define WHILE 295
 #define COMMA 296
 #define ERROR 297
-
+#define LEFTBRACKET 298
+#define RIGHTBRACKET 299
 
 
 

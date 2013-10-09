@@ -68,15 +68,18 @@
      LESSOREQUAL = 286,
      GREATEROREQUAL = 287,
      EQUAL = 288,
-     PROCEDURE = 289,
-     PARAM = 290,
-     CALL = 291,
-     IF = 292,
-     THEN = 293,
-     ELSE = 294,
-     WHILE = 295,
-     COMMA = 296,
-     ERROR = 297
+     NOTEQUAL = 289,
+     PROCEDURE = 290,
+     PARAM = 291,
+     CALL = 292,
+     IF = 293,
+     THEN = 294,
+     ELSE = 295,
+     WHILE = 296,
+     COMMA = 297,
+     ERROR = 298,
+     LEFTBRACKET = 299,
+     RIGHTBRACKET = 300
    };
 #endif
 
@@ -92,7 +95,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 96 "turtle-rpr5x.tab.h"
+#line 99 "turtle-rpr5x.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

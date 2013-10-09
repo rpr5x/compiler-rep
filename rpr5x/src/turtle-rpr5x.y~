@@ -15,14 +15,12 @@
 %token <i> INTEGER       
 %token SEMICOLON PLUS MINUS TIMES DIV OPEN CLOSE ASSIGN
 %token LEFTBRACE RIGHTBRACE
-%token LESS GREATER LESSOREQUAL GREATEROREQUAL EQUAL NOTEQUAL
+%token LESS GREATER LESSOREQUAL GREATEROREQUAL EQUAL
 %token PROCEDURE PARAM CALL
 %token IF THEN ELSE
 %token WHILE
 %token COMMA
 %token ERROR
-%token LEFTBRACKET
-%token RIGHTBRACKET
 
 %type <n> decl
 %type <n> decllist
@@ -42,16 +40,14 @@ pretail: {printf("closepath\n");};
 decllist: ;
 decllist: decllist decl;
 
-decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);};
-decl: VAR ID LEFTBRACKET INTEGER RIGHTBRACKET SEMICOLON {printf("/tlt%s %d def\n", $2->symbol, $4);};
+decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);} ;
+
 
 stmtlist: ;
 stmtlist: stmtlist stmt;
 
-stmt: ID PLUS PLUS SEMICOLON {printf("tlt%s 1 add /tlt%s exch store\n", $1->symbol, $1->symbol);};
-stmt: ID MINUS MINUS SEMICOLON {printf("tlt%s 1 sub /tlt%s exch store\n", $1->symbol, $1->symbol);};
+
 stmt: ID ASSIGN expr SEMICOLON {printf("/tlt%s exch store\n",$1->symbol);};
-stmt: ID LEFTBRACKET INTEGER RIGHTBRACKET ASSIGN expr SEMICOLON{printf("/tlt%s %d exch store\n", $1->symbol, $3);};
 stmt: MOVE expr SEMICOLON {printf("0 rlineto\n");};
 stmt: JUMP expr SEMICOLON {printf("0 rmoveto\n");};
 stmt: SHIFT expr SEMICOLON {printf("rotate\n");};
@@ -105,8 +101,7 @@ cond: expr LESS expr {printf("lt\n{");};
 cond: expr GREATER expr {printf("gt\n{ ");};
 cond: expr LESSOREQUAL expr {printf("le\n{ ");};
 cond: expr GREATEROREQUAL expr {printf("ge\n{ ");};
-cond: expr EQUAL expr {printf("eq\n{ ");};
-cond: expr NOTEQUAL expr {printf("ne\n{ ");}; 
+cond: expr EQUAL expr {printf("eq\n{ ");}; 
 cond: expr;
 %%
 int yyerror(char *msg)
