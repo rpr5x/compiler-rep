@@ -1,0 +1,8 @@
+VAR i;
+
+IF (i) {
+	SHIFT 90;
+}
+ELSE {
+	SHIFT 45;
+}

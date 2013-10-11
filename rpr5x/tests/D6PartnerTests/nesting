@@ -1,0 +1,11 @@
+VAR abc;
+
+abc = 4;
+
+WHILE (((abc < (4 + 2)) == (abc > 1))) {
+    IF (abc < 3) {
+        WHILE (1==1) {
+            SHIFT 5;
+        }
+    }
+}
