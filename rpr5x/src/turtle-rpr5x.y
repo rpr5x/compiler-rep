@@ -69,11 +69,11 @@ stmt: IF expr stmtblock {printf("} if\n");};
 stmt: WHILE expr {printf("{exit} ifelse\n");} stmtblock {printf("} loop\n");};
 
 
-stmt: PROCEDURE ID {printf("/proc%s { ",$2->symbol);} stmtblock {printf("} def\n");};
+stmt: PROCEDURE ID expr {printf("/proc%s { ",$2->symbol);}  stmtblock {printf("} def\n");};
 
  
 stmt: CALL ID atomic atomic atomic atomic SEMICOLON {printf("proc%s\n", $2->symbol);};
-
+stmt: ID expr SEMICOLON {printf("proc%s\n", $1->symbol);};
 
 stmtblock: LEFTBRACE stmtlist RIGHTBRACE;
 
@@ -101,12 +101,12 @@ atomic: FLOAT {printf("%f ",$1);};
 atomic: ID {printf("tlt%s ", $1->symbol);};
 atomic: PARAM;
 
-cond: expr LESS expr {printf("lt\n{");};
-cond: expr GREATER expr {printf("gt\n{ ");};
-cond: expr LESSOREQUAL expr {printf("le\n{ ");};
-cond: expr GREATEROREQUAL expr {printf("ge\n{ ");};
-cond: expr EQUAL expr {printf("eq\n{ ");};
-cond: expr NOTEQUAL expr {printf("ne\n{ ");}; 
+cond: cond LESS expr {printf("lt\n{");};
+cond: cond GREATER expr {printf("gt\n{ ");};
+cond: cond LESSOREQUAL expr {printf("le\n{ ");};
+cond: cond GREATEROREQUAL expr {printf("ge\n{ ");};
+cond: cond EQUAL expr {printf("eq\n{ ");};
+cond: cond NOTEQUAL expr {printf("ne\n{ ");}; 
 cond: expr;
 %%
 int yyerror(char *msg)
