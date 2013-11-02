@@ -41,7 +41,6 @@ void VarDecl::checkNode()
 {
    //currentLevel++;
    this->level = currentLevel;
-   printf("I am variable %s and I am level %d\n", this->getIdentifier()->getName(), this->level);
    char * varName = this->getIdentifier()->getName();
    Decl * oldDecl = table->Lookup(varName);
    VarDecl * oldVarDecl = dynamic_cast<VarDecl *>(oldDecl);
