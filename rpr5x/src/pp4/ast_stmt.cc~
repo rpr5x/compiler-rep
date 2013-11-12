@@ -1,0 +1,317 @@
+/* File: ast_stmt.cc
+ * -----------------
+ * Implementation of statement node classes.
+ */
+#include "ast_stmt.h"
+#include "ast_type.h"
+#include "ast_decl.h"
+#include "ast_expr.h"
+#include "hashtable.h"
+#include "ast.h"
+
+extern Hashtable<Decl *> *table;
+void inOrderTraversal(Node * root);
+ 
+Program::Program(List<Decl*> *d) {
+    Assert(d != NULL);
+    (decls=d)->SetParentAll(this);
+    this->branches = new List<Node *>(); 
+    for(int i = 0; i < d->NumElements(); i++)
+      this->branches->Append(d->Nth(i));
+    
+}
+
+//Firstpass
+void Program::Check() {
+     
+    
+    inOrderTraversal(this);    
+    
+     
+    /* pp3: here is where the semantic analyzer is kicked off.
+     *      The general idea is perform a tree traversal of the
+     *      entire program, examining all constructs for compliance
+     *      with the semantic rules.  Each node can have its own way of
+     *      checking itself, which makes for a great use of inheritance
+     *      and polymorphism in the node classes.
+     */
+}
+
+void Program::secondCheck()
+{
+     secondPass(this);    
+
+}
+
+void Program::inOrderTraversal(Node *  root)
+{
+  /*if(root == NULL)
+    return;*/
+  
+  
+  
+  List<Node *> *d = root->GetBranchList();
+//  printf("The size of d's branch list is %d\n", d->NumElements());
+
+  if(d->NumElements() == 0)
+  {
+    root->checkNode();
+    return;
+  }   
+
+
+ 
+
+  //printf("The number of elements is %d\n", d->NumElements());
+ 
+  int listSize = d->NumElements();
+
+  for(int i = 0; i < listSize; i++)
+  { 
+    inOrderTraversal(d->Nth(i));
+
+    if((i == listSize/2 - 1) || ((i == 0) && (listSize == 1))) 
+      root->checkNode();
+   
+  }
+  
+  
+
+   
+  /*inOrderTraversal(root->GetLeftChild());  
+  root->checkNode();     
+  inOrderTraversal(root->GetRightChild()); 
+  */
+
+}
+
+void secondPass(Node * root)
+{
+   List<Node *> *d = root->GetBranchList();
+   //  printf("The size of d's branch list is %d\n", d->NumElements());
+
+    if(d->NumElements() == 0)
+    {
+      root->checkNode2();
+      return;
+    }   
+
+    //printf("The number of elements is %d\n", d->NumElements());
+ 
+    int listSize = d->NumElements();
+
+    for(int i = 0; i < listSize; i++)
+    { 
+      inOrderTraversal(d->Nth(i));
+
+      if((i == listSize/2 - 1) || ((i == 0) && (listSize == 1))) 
+        root->checkNode2();
+   
+    }
+  
+   
+}
+
+StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
+    Assert(d != NULL && s != NULL);
+    (decls=d)->SetParentAll(this);
+    (stmts=s)->SetParentAll(this);
+    this->branches = new List<Node*>();
+    for(int i = 0; i < decls->NumElements(); i++)
+      this->branches->Append(decls->Nth(i));
+    for(int i = 0; i < s->NumElements(); i++)
+      this->branches->Append(s->Nth(i));
+}
+
+void StmtBlock::checkNode()
+{ 
+
+  //Exit function body scope if the number of variable declarations/statements is either
+  //zero or one
+  if(this->branches->NumElements() < 2)
+  {
+    Node * fnNode = this->GetParent();
+    FnDecl * fnParent = dynamic_cast<FnDecl *>(fnNode);
+    Stmt * body = fnParent->getBody();
+    StmtBlock * trueBody = dynamic_cast<StmtBlock *>(body);
+    List<VarDecl*> *bodyDecls = trueBody->getDeclList();
+    List<Stmt *> *bodyStmts = trueBody->getStmtList();
+    for(int i = 0; i < bodyDecls->NumElements(); i++)
+    {       
+      VarDecl * bodyDecl = bodyDecls->Nth(i);
+      if(currentLevel == bodyDecl->level)
+        table->Remove(bodyDecl->getIdentifier()->getName(), bodyDecl);  
+    }
+  
+  
+  /*for(int i = 0; i < bodyStmts->NumElements(); i++)
+  { 
+    Stmt * bodyStmt = bodyStmts->Nth(i);
+    if(currentLevel == bodyStmt->level)
+      table->Remove(bodyStmt->getIdentifier()->getName(), bodyStmt);  
+  }*/
+    currentLevel--;
+
+    //Exit function parameter scope
+    List<VarDecl *> *formals = fnParent->getFormals();
+    for(int i = 0; i < formals->NumElements(); i++)
+    { 
+      VarDecl * formal = formals->Nth(i);
+      if(currentLevel == formal->level)
+        table->Remove(formal->getIdentifier()->getName(), formal);  
+    }
+    currentLevel--;
+
+    //Exit functon header scope
+    if(currentLevel == fnParent->level)
+    {
+      table->Remove(fnParent->getIdentifier()->getName(), fnParent);
+    }
+
+   }
+    //Exit class scope for functions that have less than 2 statements inside them.  The distinction
+    //is necessary because of how in-order traversal is conducted.
+    FnDecl * parentFunc = dynamic_cast<FnDecl*>(this->GetParent());
+    if(parentFunc && this->branches->NumElements() < 2)
+    {
+      ClassDecl * parentClass = dynamic_cast<ClassDecl *>(parentFunc->GetParent());
+      if(parentClass)
+      { 
+        List<Decl *> *classFields = parentClass->getMembers();
+        int fieldListSize = classFields->NumElements();
+        Decl * lastField = classFields->Nth(fieldListSize-1);
+        FnDecl * lastFn = dynamic_cast<FnDecl *>(lastField);
+        VarDecl * lastVar = dynamic_cast<VarDecl *>(lastField);
+        if(lastFn && strcmp(parentFunc->getIdentifier()->getName(), lastFn->getIdentifier()->getName()) == 0)
+        {
+          table->Remove(parentClass->getIdentifier()->getName(), parentClass);
+          currentLevel--;      
+          printf("I am function %s and I am exiting the class scope\n", lastFn->getIdentifier()->getName());
+        } 
+      }
+    }    
+     
+  
+}
+
+void StmtBlock::checkNode2()
+{
+
+
+
+}
+
+
+
+List<VarDecl*> * StmtBlock::getDeclList()
+{
+  return  decls;
+}
+
+List<Stmt*> * StmtBlock::getStmtList()
+{
+  return stmts;
+} 
+
+//Populate the branches for each of the Stmt classes
+ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
+    Assert(t != NULL && b != NULL);
+    (test=t)->SetParent(this); 
+    (body=b)->SetParent(this);
+}
+
+ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) { 
+    Assert(i != NULL && t != NULL && s != NULL && b != NULL);
+    (init=i)->SetParent(this);
+    (step=s)->SetParent(this);
+    this->branches = new List<Node *>();
+    this->branches->Append(init);
+    this->branches->Append(step);
+    this->branches->Append(test);
+    this->branches->Append(body);
+
+
+}
+
+IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
+    Assert(t != NULL && tb != NULL); // else can be NULL
+    elseBody = eb;
+    if (elseBody) elseBody->SetParent(this);
+    this->branches = new List<Node *>();
+    this->branches->Append(test);
+    this->branches->Append(body);
+    if(elseBody) this->branches->Append(elseBody);
+
+
+}
+
+SwitchStmt::SwitchStmt(Expr * t, List<Stmt*> *cb, Stmt * ds) : Stmt() {
+   Assert(t != NULL && cb != NULL);//ds can be NULL
+   test = t;
+   caseBody = cb;
+   test->SetParent(this);
+   caseBody->SetParentAll(this);
+   if(ds) (defaultStmt = ds)->SetParent(this);
+   this->branches = new List<Node *>();
+   this->branches->Append(test);
+   for(int i = 0; i < caseBody->NumElements(); i++)
+     this->branches->Append(caseBody->Nth(i));
+   if(ds) this->branches->Append(defaultStmt);
+
+
+
+}
+
+CaseStmt::CaseStmt(IntConstant * intConstant, List<Stmt*> *statements): Stmt() {
+     Assert(intConstant != NULL && statements != NULL);
+     caseInt = intConstant;
+     stmts = statements;
+     caseInt->SetParent(this);
+     stmts->SetParentAll(this);
+     this->branches = new List<Node*>();
+     this->branches->Append(caseInt);
+     for(int i = 0; i < stmts->NumElements(); i++)
+       this->branches->Append(stmts->Nth(i));
+
+
+
+ 
+}
+
+DefaultStmt::DefaultStmt(List<Stmt *> *statements): Stmt() {
+    stmts = statements; //statements can be NULL 
+    if(stmts) stmts->SetParentAll(this);
+    this->branches = new List<Node*>();
+    if(stmts)
+    {
+      for(int i = 0; i < stmts->NumElements(); i++)
+        this->branches->Append(stmts->Nth(i));
+    }
+
+}
+
+ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
+    Assert(e != NULL);
+    (expr=e)->SetParent(this);
+    this->branches = new List<Node *>();
+    this->branches->Append(e);
+
+
+}
+  
+PrintStmt::PrintStmt(List<Expr*> *a) {    
+    Assert(a != NULL);
+    (args=a)->SetParentAll(this);
+    this->branches = new List<Node *>();
+    for(int i = 0; i < args->NumElements(); i++)
+    {
+      this->branches->Append(args->Nth(i)); 
+    } 
+}
+
+void PrintStmt::checkNode()
+{
+  
+  //table->Enter(this->getIdentifier()->getName(), this);
+}
+

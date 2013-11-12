@@ -1,0 +1,31 @@
+For bad6.decaf, the two error messages in my output that I get when running it on my semantic
+analyzer are in reverse order.  In other words,
+
+                Correct Output for bad6.decaf
+
+*** Error line 11.
+    void Method3(bool a) {}
+         ^^^^^^^
+*** Method 'Method3' must match inherited type signature
+
+
+*** Error line 4.
+    int Method2(int[] a, Base c, double d) {}
+        ^^^^^^^
+*** Method 'Method2' must match inherited type signature
+
+is actually
+
+               My Output for bad6.decaf
+
+*** Error line 4.
+    int Method2(int[] a, Base c, double d) {}
+        ^^^^^^^
+*** Method 'Method2' must match inherited type signature
+
+*** Error line 11.
+    void Method3(bool a) {}
+         ^^^^^^^
+*** Method 'Method3' must match inherited type signature
+
+in my output.  You can see this when you do ./dcc < bad6.decaf.

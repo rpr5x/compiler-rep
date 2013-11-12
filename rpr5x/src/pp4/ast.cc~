@@ -1,0 +1,99 @@
+/* File: ast.cc
+ * ------------
+ */
+
+#include "ast.h"
+#include "ast_type.h"
+#include "ast_decl.h"
+#include <string.h> // strdup
+#include <stdio.h>  // printf
+#include "hashtable.h"
+#include "errors.h"
+
+extern Hashtable<Decl*> *table;
+extern int currentLevel;
+
+Node::Node(yyltype loc) {
+    location = new yyltype(loc);
+    parent = NULL;
+    branches = new List<Node *>();        
+}
+
+Node::Node() {
+    location = NULL;
+    parent = NULL;
+    branches = new List<Node *>();
+}
+	 
+Identifier::Identifier(yyltype loc, const char *n) : Node(loc) {
+    name = strdup(n);
+    branches = new List<Node *>();
+}
+
+void Identifier::checkNode()
+{
+
+  //Increment for various header scopes
+  Node * parentNode = this->GetParent();
+  ClassDecl * parentClass = dynamic_cast<ClassDecl *>(parentNode);
+  InterfaceDecl * parentInterface = dynamic_cast<InterfaceDecl *>(parentNode);
+  FnDecl * parentFunction = dynamic_cast<FnDecl *>(parentNode);
+
+  if(parentClass)//Enter class header scope
+  {
+    currentLevel++;
+    parentClass->level = currentLevel;    
+    printf("The class is at level %d\n", parentClass->level);
+    Decl * oldDecl = table->Lookup(this->getName());
+    ClassDecl * oldClassDecl = dynamic_cast<ClassDecl *>(oldDecl);
+    List<Decl *> *derivedMembers = parentClass->getMembers(); 
+
+    //Cannot have two class declarations with the same name in the same scope (Handle shadowing later)
+    if(oldClassDecl) 
+    {
+      if(currentLevel == oldClassDecl->level)
+      {
+       ReportError::DeclConflict(this, oldClassDecl);
+       currentLevel--;
+       return;
+      }
+    }
+    else
+    {
+      table->Enter(parentClass->getIdentifier()->getName(), parentClass);
+    }
+    currentLevel++; //Increment for class local scope
+  }   
+  else if(parentInterface)//Enter interface header scope
+  {
+    currentLevel++;
+    parentInterface->level = currentLevel;
+    printf("The interface is at level %d\n", parentInterface->level);
+    table->Enter(parentInterface->getIdentifier()->getName(), parentInterface);
+    currentLevel++;//Increment for interface local scope
+  }
+  else if(parentFunction) //Enter function header scope
+  {
+    Node * d = parentFunction->GetParent();
+    InterfaceDecl * superInterface = dynamic_cast<InterfaceDecl *>(d);
+    ClassDecl * superClass = dynamic_cast<ClassDecl *>(d);
+    //if(!superInterface && !superClass)
+      currentLevel++;
+    parentFunction->level = currentLevel;
+    printf("The function is at level %d\n", parentFunction->level);
+    table->Enter(parentFunction->getIdentifier()->getName(), parentFunction);
+    currentLevel++;//Increment for function parameter scope
+    printf("The function parameters are at level %d\n", currentLevel);
+  }
+}
+
+void Identifier::checkNode2()
+{
+
+}
+
+char * Identifier::getName() const
+{
+  return name;
+} 
+
