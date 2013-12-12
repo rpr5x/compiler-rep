@@ -1,0 +1,15 @@
+class Cow {}
+
+void main() {
+  Cow c;
+  Print(55 == 1);
+  Print(32 == 32);
+  c = null;
+  Print(c == null);
+  Print(true == true);
+  Print(true == false);
+  Print(58 != 1);
+  Print(31 != 31);
+  Print(true != true);
+  Print(true != false);
+}

@@ -1,0 +1,93 @@
+# cases file format:
+#
+# filename; points; comment;
+#
+# cases file format:
+#
+# filename; points; comment;
+#
+# the trailing semicolon is optional.  no newlines are allowed in the comment.
+# test may be commented out using a '#' (sh/perl style comments).
+#
+# tests that are to be run interactively should be formatted as follows:
+#
+# filename; points; comment; I;
+#
+# again, with trailing semicolon optional.
+#
+# at some point in the file, a line of the format:
+#
+# maxscore = #
+#
+# must exist in the file.  this line specifies the maximum possible score
+# on the assignment.
+#
+maxscore = 60
+
+# simple tests
+var1.decaf; 2; read/write many variables in local/function/global scopes, some shadowing
+op1.decaf; 2; simple arithmetic/logical expressions (binary & unary): +,-,/,*,%
+op3.decaf; 2; simple equality operations: ==, !=
+op4.decaf; 2; simple relational operators: <, >, <=, >=
+string1.decaf; 2; == and != on strings should compare characters, not just pointers
+io1.decaf; 2; simple use of ReadLine() and ReadInteger()
+if1.decaf; 2; simple if statements, both with and without the optional else
+if5.decaf; 2; if statement with complicated conditional statement
+while1.decaf; 2; simple while loops, both with and without break
+while4.decaf; 2; nested while loop with breaks in both inner and outer loops
+for1.decaf; 2; simple for loop both with and without break
+for3.decaf; 2; nested for loop with a break in the inner loop
+# functions:
+function1.decaf; 2; simple function call with arguments of various types (int, string, bool)
+function2.decaf; 2; simple functions that return a value
+function3.decaf; 1; empty return mid-way through function (should not run lines after return)
+function4.decaf; 1; nested function calls, lots of params/locals
+function6.decaf; 1; recursive function (i.e. function has a call to itself)
+rec.decaf; 1; very deep recursion (checks for correct stack frame size)
+# arrays:
+array1.decaf; 2; simple array test (int/bool/string):  NewArray, assignment of individual elements, and use of length()
+array2.decaf; 1; passing array as parameter and returning array from function
+array3.decaf; 1; creating and using multidimensional arrays 
+array4.decaf; 1; arrays of objects, no inheritance
+# classes:
+class1.decaf; 1; object instantiation using New(), no inheritance
+class2.decaf; 1; access to instance variables (field, this.field, other.field), no inheritance
+class3.decaf; 1; calling methods (meth(), this.meth(), other.meth()), no inheritance
+class4.decaf; 1; using 'this' as a variable and passing it as a parameter, no inheritance
+class5.decaf; 1; New(ClassName).method() should work
+class6.decaf; 1; passing objects as parameters and returning objects from functions, no inheritance
+class7.decaf; 1; classes/methods with various params/returns, no inheritance
+# inheritance: 
+inherit1.decaf; 1; accessing inherited instance variables/methods from parent
+inherit2.decaf; 1; accessing instance variables/methods through multiple levels of inheritance, no overriding
+inherit3.decaf; 1; calling overridden method on object, no upcasting
+inherit4.decaf; 1; calling overridden method on subclass upcasted to parent
+inherit5.decaf; 1; multi-level dynamic dispatch, both with and without upcasting
+inherit6.decaf; 1; jumbled class declaration order (use before declared, child before parent,etc. )
+# link:
+link1.decaf; 1; should report error if main function undefined and should not generate code
+link2.decaf; 1; a method named main should not be confused with main function
+link3.decaf; 1; a method named main and no function named main should not link
+# rterror: 
+rterror1.decaf; 1; should report runtime error on attempt to access array[-1]
+rterror2.decaf; 1; should report runtime error on attempt to access array[len]
+rterror3.decaf; 1; should report runtime error on attempt to access array[len+1]
+rterror4.decaf; 1; should report runtime error on attempt to allocate neg-size array
+# complex:
+sort.decaf; 1; array sorting program given to you
+stack.decaf; 1; stack sample program given to you
+queue.decaf; 1; queue sample program given to you
+blackjack.decaf; 1; blackjack sample program given to you
+
+# remove because it always seemed to overlap with the other op tests
+op5.decaf; 2; complex arithmetic/relational/logical expressions
+# took array5 out because it was stupid
+array5.decaf; 1; NewArray().length() should work
+# took constants4 out because it double-dings for those who don't implement dynamic dispatch
+constants4.decaf; 2; send message to null object;F
+# took tree out, overlaps a lot with matrix/queue
+tree.decaf; 2; binary tree insert and search, no inheritance
+# took matrix out, overlaps a lot with queue/tree
+matrix.decaf; 2; matrix sample program given to you
+# took out fib, it overlaps with all the function tests
+fib.decaf; 2; fibonacci sample program given to you

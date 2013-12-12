@@ -1,0 +1,15 @@
+string s;
+
+void main()
+{
+   int n;
+
+    ReadLine();
+    s = ReadLine();
+    Print(s, "\n");
+    Print(ReadLine(), "\n");
+    ReadInteger();
+    n = ReadInteger();
+    Print(n, "\n");
+    Print(ReadInteger()*2, "\n");
+}

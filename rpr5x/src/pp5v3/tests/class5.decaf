@@ -1,0 +1,13 @@
+class Cow {
+	Cow Init() { Print("Moo"); return null;}
+}
+
+class Barn {
+     void Init() { Cow b; b =  New(Cow).Init(); }
+}
+    
+
+void main()
+{
+	New(Barn).Init();
+}

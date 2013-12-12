@@ -1,0 +1,4 @@
+void main()
+{
+	Print(NewArray(10, int).length());
+}

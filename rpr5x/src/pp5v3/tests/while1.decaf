@@ -1,0 +1,28 @@
+void main() {
+  int a;
+
+ a = 2;
+  while (a < 4) {
+	a = a + 1;
+      Print(a);
+  }
+  Print("done");
+
+  while (false) {
+    Print(0);
+  }
+  Print("next");
+  a = 0;
+  while (a < 4) {
+	while( a < 3) a = a +1;
+      Print(a);
+      a = a *2;
+ }
+  while (true) break;
+  a = 1;
+  while (a < 10) {
+	a =a +1;
+      if (a == 5) break;
+  }
+  Print(a, "end");
+}

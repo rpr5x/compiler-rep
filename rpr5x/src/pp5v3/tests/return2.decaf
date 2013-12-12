@@ -1,0 +1,5 @@
+void main()
+{
+	return;
+	Print(1); // should not be printed at all
+}

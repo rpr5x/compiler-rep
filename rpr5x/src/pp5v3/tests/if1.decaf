@@ -1,0 +1,14 @@
+void main() {
+  if (false)
+    Print(1);
+  else {
+    Print(2);
+    if (true) 	
+    	Print(3);
+  }
+  Print(4);
+  if (true) 
+     Print(5);
+  else if (true)
+	Print(6);
+}

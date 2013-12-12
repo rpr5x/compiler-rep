@@ -1,0 +1,12 @@
+void main() {
+  int i;
+   for (i = 10; i > 0; i = i - 2)
+     Print(i);
+  Print("after ", i);
+  i = 0;
+  for (; true; ) {
+	i = i + 1;
+      if (i == 5) break;
+  }
+  Print("done", i);
+}

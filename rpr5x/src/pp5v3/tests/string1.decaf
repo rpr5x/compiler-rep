@@ -1,0 +1,20 @@
+string s;
+
+void main()
+{
+    string t;
+
+    s = "hello";
+    Print(s);
+    t = "world";
+    Print(t);
+    Print("hello" == "goodbye");
+    Print("hello" == "hello");
+    Print("hello" == s);
+    Print("hello" == t);
+    s = "not";
+    Print("not" != "something else");
+    Print("not" != "not");
+    Print("not" != s);
+    Print("not" != t);
+}

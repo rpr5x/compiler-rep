@@ -1,0 +1,24 @@
+int a;
+int b;
+int c;
+
+void main() {
+   int a;
+
+  a = 10;
+  b = 82;
+  c = 2;
+      Print(a, b, c, "\n");
+ {
+    int b;
+     b = 5;
+    c = b;
+   {
+      int c;
+      c = 10;
+      Print(a, b, c, "\n");
+   }
+   Print(a, b, c, "\n");
+ }
+  Print(a, b, c, "\n");
+}

@@ -1,0 +1,87 @@
+
+
+class TreeItem {
+  int data;
+  TreeItem left;
+  TreeItem right;
+  
+  TreeItem Init(int data) {
+    this.data = data;
+    left = null;
+    right = null;
+    return this;
+  }
+  int GetData() { return data;  }
+  TreeItem GetLeft() { return left;}
+  TreeItem GetRight() { return right;}
+  void SetLeft(TreeItem left) { this.left = left; }
+  void SetRight(TreeItem right) { this.right = right; }
+   void SetData(int data) { this.data = data;}
+  void PrintNode() {
+      if (GetLeft() != null) GetLeft().PrintNode();
+       Print(" ", data, " ");
+       if (GetRight() != null) GetRight().PrintNode();
+  }  
+}  
+
+
+class Tree {
+  TreeItem root;
+  
+  void Init() {
+    root = null;
+  }
+
+  void Helper(int i, TreeItem node) {
+    if (i <= node.GetData()) {
+      if (node.GetLeft() == null) {
+        TreeItem l;
+        l = New(TreeItem);
+	  node.SetLeft(l.Init(i));
+      } else {
+	Helper(i, node.GetLeft());	
+      }
+    } else {
+      if (node.GetRight() == null) {
+         TreeItem r;
+         r = New(TreeItem);
+         node.SetRight(r.Init(i));
+      } else {
+	Helper(i, node.GetRight());
+      }
+    }
+  }
+
+  void Insert(int i) {
+    if (root == null) {
+      root = New(TreeItem);
+      root.Init(i);
+    } else {
+      Helper(i, root);
+    }
+  }
+
+  void PrintTree() {
+	if (root != null) root.PrintNode();
+      else Print("<empty>");
+     Print("\n");
+ }
+}
+
+void main() {
+  Tree t;
+
+  t = New(Tree);
+  t.PrintTree();
+  t.Insert(5);
+  t.Insert(10);
+   t.Insert(0);
+   t.PrintTree();
+   t.Insert(10);
+   t.Insert(4);
+   t.Insert(17);
+  t.Insert(8);
+   t.Insert(6);
+  t.Insert(3);
+  t.PrintTree();
+}

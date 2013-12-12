@@ -1,0 +1,15 @@
+void main() {
+  while (true) {
+    while (true) {
+      Print(1);
+      break;
+      Print(2);
+      return;
+    }
+    Print(3);
+    break;
+    Print(4);
+    return;
+  }
+  Print(5);
+}

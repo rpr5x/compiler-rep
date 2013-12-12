@@ -1,0 +1,11 @@
+void main() {
+  Print(1 + 1);
+  Print(10 - 5);
+  Print(21 / 3);
+  Print(345 * 56);
+  Print(82 % 9);
+  Print(-5);
+  Print(true && false);
+  Print(true || false);
+  Print(!true);
+}
