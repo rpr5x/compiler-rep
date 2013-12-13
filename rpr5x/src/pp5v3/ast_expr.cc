@@ -58,10 +58,11 @@ void StringConstant::Emit()
 }
 
 //Not sure if this is needed
-/*void NullConstant::Emit()
+void NullConstant::Emit()
 {
- 
-}*/
+  this->nullLoc = codeGen->GenLoadConstant("null");  
+  FnDecl::numBytes+=4;
+}
 
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -250,7 +251,7 @@ void RelationalExpr::Emit()
      {
        this->relLoc = codeGen->GenBinaryOp(opName, right->GetLocationNode(), left->GetLocationNode());
      }
-       }
+  }
   else if(strcmp(opName, ">=") == 0)
   {  
      FnDecl::numBytes+=8;
@@ -265,20 +266,8 @@ void RelationalExpr::Emit()
         Expr * sub = a2->GetSubscript();
 
         FieldAccess * base2 = dynamic_cast<FieldAccess *>(base);
-        
-        
-
-
-
-
-
+       
      }
-
-
-
-
-
-
 
      Location * loc1 = codeGen->GenBinaryOp(opName1, right->GetLocationNode(), left->GetLocationNode());//Reverse for less than
      Location * loc2 = codeGen->GenBinaryOp(opName2, left->GetLocationNode(), right->GetLocationNode());
@@ -403,8 +392,12 @@ void RelationalExpr::Emit()
       Location * varLoc = v1->GetLocationNode();
       Location * intLoc2 = i2->GetLocationNode();
       this->relLoc = codeGen->GenBinaryOp(opName, varLoc, intLoc2);
-    }   
-    
+    }
+    else
+    {
+      this->relLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), right->GetLocationNode());
+    }
+   
   }
 }
 
@@ -470,7 +463,8 @@ void EqualityExpr::Emit()//Revise this for array accesses later
     {
       Decl * d1 = FindDecl(var1->GetId());
       VarDecl * v1 = dynamic_cast<VarDecl *>(d1);
-     
+      StringConstant * s2 = dynamic_cast<StringConstant *>(right);
+ 
       if(v1)
       {
         Location * varLoc = v1->GetLocationNode();  
@@ -478,22 +472,68 @@ void EqualityExpr::Emit()//Revise this for array accesses later
         Location * rightLoc = right->GetLocationNode();
 
         FnDecl::numBytes+=8;
-        Location * tempLoc = codeGen->GenBinaryOp(eqName, varLoc, rightLoc); 
+        Location * tempLoc;
+
+        if(v1 && s2)
+           tempLoc = codeGen->GenBuiltInCall(StringEqual, varLoc, rightLoc);
+        else
+           tempLoc = codeGen->GenBinaryOp(eqName, varLoc, rightLoc); 
+ 
         Location * zeroLoc = codeGen->GenLoadConstant(0);
         Location * eqZeroLoc = codeGen->GenBinaryOp("==", tempLoc, zeroLoc);
         this->eqLoc = eqZeroLoc;
 
         //this->eqLoc = codeGen->GenBinaryOp(opName, varLoc, rightLoc); 
       }
+  
+     }
+     else if(var2)
+     {
+       StringConstant *s1 = dynamic_cast<StringConstant *>(left);
+       Decl * d2 = FindDecl(var2->GetId());
+       VarDecl * v2 = dynamic_cast<VarDecl *>(d2);
+     
+       if(v2)
+       {
+        Location * varLoc = v2->GetLocationNode();  
+        //FnDecl::numBytes+=4; //Update BeginFunc size 
+        Location * leftLoc = left->GetLocationNode();
 
-   }
+        FnDecl::numBytes+=8;
+
+        Location * tempLoc;
+
+        if(s1 && v2)
+           tempLoc = codeGen->GenBuiltInCall(StringEqual, leftLoc, varLoc);
+        else
+           tempLoc = codeGen->GenBinaryOp(eqName, leftLoc, varLoc); 
+
+        Location * zeroLoc = codeGen->GenLoadConstant(0);
+        Location * eqZeroLoc = codeGen->GenBinaryOp("==", tempLoc, zeroLoc);
+        this->eqLoc = eqZeroLoc;
+
+        //this->eqLoc = codeGen->GenBinaryOp(opName, varLoc, rightLoc); 
+      } 
+
+     }
      else //Default case of two integers, strings, or bools (this should be revised for array accesses later)
      {
-        Location * tempLoc = codeGen->GenBinaryOp(eqName, left->GetLocationNode(), right->GetLocationNode()); 
+        Location * tempLoc;
+        StringConstant* s1 = dynamic_cast<StringConstant*>(left);
+        StringConstant* s2 = dynamic_cast<StringConstant*>(right);
+
+
+        if(s1 && s2)
+         tempLoc = codeGen->GenBuiltInCall(StringEqual, left->GetLocationNode(), right->GetLocationNode());        
+        else
+          tempLoc = codeGen->GenBinaryOp(eqName, left->GetLocationNode(), right->GetLocationNode()); 
+
+
         Location * zeroLoc = codeGen->GenLoadConstant(0);
         Location * eqZeroLoc = codeGen->GenBinaryOp("==", tempLoc, zeroLoc);
         FnDecl::numBytes+=8;
-        this->eqLoc = eqZeroLoc;
+
+        this->eqLoc = eqZeroLoc;       
  
         //this->eqLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), right->GetLocationNode());
 
@@ -644,9 +684,34 @@ void EqualityExpr::Emit()//Revise this for array accesses later
 
 
      }
+     else if(var2)
+     {
+       StringConstant * s1 = dynamic_cast<StringConstant *>(left);
+           
+       Decl * var = FindDecl(var2->GetId());
+       VarDecl * var2 = dynamic_cast<VarDecl *>(var);
+       Location * varLoc = var2->GetLocationNode();
+
+
+       if(s1 && strcmp(var2->GetDeclaredType()->GetName(), "string") == 0)
+          this->eqLoc = codeGen->GenBuiltInCall(StringEqual, left->GetLocationNode(), varLoc);
+       else
+          this->eqLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), varLoc);
+               
+     }
      else //Default case of two integers, strings, or bools (this should be revised for array accesses later)
      {
-        this->eqLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), right->GetLocationNode());
+        
+        StringConstant* s1 = dynamic_cast<StringConstant*>(left);
+        StringConstant* s2 = dynamic_cast<StringConstant*>(right);
+
+        if(s1 && s2)
+          this->eqLoc = codeGen->GenBuiltInCall(StringEqual,left->GetLocationNode(), right->GetLocationNode());
+
+        else
+          this->eqLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), right->GetLocationNode()); 
+ 
+        //this->eqLoc = codeGen->GenBinaryOp(opName, left->GetLocationNode(), right->GetLocationNode());
         
      }   
    }   
@@ -700,7 +765,7 @@ void AssignExpr::Emit()
   NewExpr * right6 = dynamic_cast<NewExpr *>(right); 
   ArithmeticExpr * right7 = dynamic_cast<ArithmeticExpr *>(right);
   ReadIntegerExpr *right8 = dynamic_cast<ReadIntegerExpr *>(right);
-
+  AssignExpr * right9 = dynamic_cast<AssignExpr *>(right); 
 
   //Case 1:  Both left and right are variables
   if(left2 && right2)
@@ -1123,6 +1188,20 @@ void AssignExpr::Emit()
     
 
     codeGen->GenAssign(loc1, loc2);
+
+
+  }
+  else if(left2 && right9)
+  {
+     Decl * d = FindDecl(left2->GetId());
+     VarDecl * v = dynamic_cast<VarDecl *>(d);
+     Location *loc1;
+     Location *loc2;
+
+     if(v)
+       loc1 = v->GetLocationNode();
+     loc2 = right9->GetRight()->GetLocationNode();
+     codeGen->GenAssign(loc1, loc2);
 
 
   }

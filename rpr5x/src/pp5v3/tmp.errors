@@ -1,0 +1,5 @@
+
+*** Failure: Assertion failed: tac.cc, line 107:
+    dst != NULL && op1 != NULL && op2 != NULL
+
+Aborted (core dumped)

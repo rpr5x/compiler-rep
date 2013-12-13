@@ -91,8 +91,10 @@ class StringConstant : public Expr
 class NullConstant: public Expr 
 {
   public: 
+    Location * nullLoc;
     NullConstant(yyltype loc) : Expr(loc) {}
-    void Emit() {}
+    Location * GetLocationNode() {return nullLoc; }
+    void Emit();    
 };
 
 class Operator : public Node 

@@ -753,7 +753,7 @@ void PrintStmt::Emit()
     {
        Location * relLoc = relExpr->GetLocationNode();
        codeGen->GenBuiltInCall(PrintBool, relLoc, NULL); 
-
+       
     }
     else if(logExpr)
     { 
@@ -774,13 +774,14 @@ void PrintStmt::Emit()
          VarDecl * v = dynamic_cast<VarDecl *>(d); 
          baseLoc = v->GetLocationNode();
        }
-      
+
+       ArithmeticExpr * subscript1 = dynamic_cast<ArithmeticExpr *>(subscript); 
        IntConstant * subscript2 = dynamic_cast<IntConstant *>(subscript);
        FieldAccess * subscript3 = dynamic_cast<FieldAccess *>(subscript);
        ArrayAccess * subscript4 = dynamic_cast<ArrayAccess *>(subscript);
 
        //Location * baseLoc = v->GetLocationNode();
-       const char * badSubscript = err_arr_bad_size;
+       const char * badSubscript = err_arr_out_of_bounds;
        char * firstLabel = codeGen->NewLabel();
        char * secondLabel = codeGen->NewLabel();
 
@@ -932,7 +933,61 @@ void PrintStmt::Emit()
       }
       else //Used for single-dimensional arrays only
       {
-       if(subscript2)
+       if(subscript1)
+       {
+         Decl * d = FindDecl(baseField->GetId());
+         VarDecl * v = dynamic_cast<VarDecl *>(d);
+
+
+         Location * indexLoc = subscript1->GetLocationNode(); 
+         Location * zeroLoc = codeGen->GenLoadConstant(0);
+         Location * firstCheck = codeGen->GenBinaryOp("<", indexLoc, zeroLoc);
+         
+         Location * arrayLength = codeGen->GenLoad(baseLoc, -4);
+         Location * secondCheck = codeGen->GenBinaryOp("<", indexLoc, arrayLength);
+
+         Location * equalCheck = codeGen->GenBinaryOp("==", secondCheck, zeroLoc);
+ 
+         Location * orCheck = codeGen->GenBinaryOp("||", firstCheck, equalCheck);
+
+         codeGen->GenIfZ(orCheck, firstLabel);
+
+         
+         //Executes if the subscript is bad
+         Location * badSubscriptError = codeGen->GenLoadConstant(badSubscript); 
+
+         codeGen->GenBuiltInCall(PrintString, badSubscriptError, NULL);
+
+         codeGen->GenBuiltInCall(Halt, NULL, NULL);
+
+         //At this point, the subscript is valid
+         codeGen->GenLabel(firstLabel); 
+         Location * fourLoc = codeGen->GenLoadConstant(4);
+         Location * fourBytes = codeGen->GenBinaryOp("*", fourLoc, indexLoc);
+         
+         Location * addressLoc = codeGen->GenBinaryOp("+", baseLoc, fourBytes);
+
+         Location * loadLoc = codeGen->GenLoad(addressLoc, 0);
+
+         Type * arrayType = v->GetDeclaredType();
+         ArrayType * arrayType2 = dynamic_cast<ArrayType *>(arrayType);
+
+         const char * typeName = arrayType2->GetName();
+          
+         Location * returnLoc;
+
+         if(strcmp(typeName, "int[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintInt, loadLoc, NULL);
+         else if(strcmp(typeName, "string[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintString, loadLoc, NULL);
+         else if(strcmp(typeName, "bool[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintBool, loadLoc, NULL);
+           
+
+         FnDecl::numBytes+=48;
+  
+       }
+       else if(subscript2)
        {
          Decl * d = FindDecl(baseField->GetId());
          VarDecl * v = dynamic_cast<VarDecl *>(d);
@@ -952,6 +1007,7 @@ void PrintStmt::Emit()
 
          codeGen->GenIfZ(orCheck, firstLabel);
 
+         
          //Executes if the subscript is bad
          Location * badSubscriptError = codeGen->GenLoadConstant(badSubscript); 
 
