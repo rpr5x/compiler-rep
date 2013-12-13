@@ -9,7 +9,7 @@
 #include <string.h>
 #include "tac.h"
 #include "mips.h"
-
+#include "ast_decl.h"
 
 Location* CodeGenerator::ThisPtr= new Location(fpRelative, 4, "this");
 
@@ -29,9 +29,10 @@ char *CodeGenerator::NewLabel()
   return strdup(temp);
 }
 
-//Change this to account for global variables (and function parameters)
+
 Location *CodeGenerator::GenTempVar()
 {
+  FnDecl::numBytes+=4;
   static int nextTempNum;
   char temp[10];
   Location *result = NULL;
@@ -51,6 +52,7 @@ Location *CodeGenerator::GenLoadConstant(int value)
 {
   Location *result = GenTempVar();
   code.push_back(new LoadConstant(result, value));
+  //FnDecl::numBytes+=4;
   return result;
 }
 
@@ -58,6 +60,7 @@ Location *CodeGenerator::GenLoadConstant(const char *s)
 {
   Location *result = GenTempVar();
   code.push_back(new LoadStringConstant(result, s));
+  //FnDecl::numBytes+=4;
   return result;
 } 
 
@@ -65,6 +68,7 @@ Location *CodeGenerator::GenLoadLabel(const char *label)
 {
   Location *result = GenTempVar();
   code.push_back(new LoadLabel(result, label));
+  //FnDecl::numBytes+=4;
   return result;
 } 
 
@@ -79,6 +83,7 @@ Location *CodeGenerator::GenLoad(Location *ref, int offset)
 {
   Location *result = GenTempVar();
   code.push_back(new Load(result, ref, offset));
+  //FnDecl::numBytes+=4;
   return result;
 }
 
@@ -93,6 +98,7 @@ Location *CodeGenerator::GenBinaryOp(const char *opName, Location *op1,
 {
   Location *result = GenTempVar();
   code.push_back(new BinaryOp(BinaryOp::OpCodeForName(opName), result, op1, op2));
+ // FnDecl::numBytes+=4;
   return result;
 }
 

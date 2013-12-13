@@ -128,6 +128,10 @@ class FnDecl : public Decl
     const char * result2;
     const char * GetFnLabel() {return result2; } 
     List<VarDecl*> *GetFormals() {return formals; }
+    Location * arrayLengthLoc;
+    Location *GetArrayLength() {return arrayLengthLoc; }
+
+
 };
 
 #endif

@@ -351,9 +351,27 @@ void ReturnStmt::Emit()
          }
 
          else
-         {
-           
+         { 
             returnLoc = v->GetLocationNode();
+            Node * parent = v->GetParent();
+            FnDecl * fnParent = dynamic_cast<FnDecl *>(parent);
+            Program * prog = dynamic_cast<Program *>(parent);
+         
+            while(!fnParent && !prog)
+            {
+             parent = parent->GetParent();
+             classParent = dynamic_cast<ClassDecl *>(parent);
+             prog = dynamic_cast<Program *>(parent);
+            }
+
+            if(fnParent)
+            {
+              Type * fieldType = v->GetDeclaredType();
+              ArrayType * arrayType = dynamic_cast<ArrayType *>(fieldType);
+              if(arrayType)
+               fnParent->arrayLengthLoc = returnLoc; 
+            }
+             
          }
          
        }
@@ -569,6 +587,8 @@ void PrintStmt::Emit()
        {
          Expr * e = fnCall->GetBase();
          FieldAccess * f = dynamic_cast<FieldAccess *>(e);
+         Call * fn = dynamic_cast<Call *>(e);
+         NewArrayExpr * nae = dynamic_cast<NewArrayExpr *>(e);
          if(f)
          {
            Decl * d = FindDecl(f->GetId());
@@ -613,6 +633,32 @@ void PrintStmt::Emit()
               }
            }
           }
+        }
+        else if(fn)
+        {
+          
+          Decl * fnName = FindDecl(fn->GetId());
+          FnDecl * fnDecl = dynamic_cast<FnDecl *>(fnName); 
+          if(fnDecl)
+          {
+            const char * name = fnDecl->GetId()->GetName();
+            //printf("The name is %s\n", name);
+            Location * fnLoc = fnDecl->GetArrayLength();
+            Type * fnType = fnDecl->GetType();
+            char * typeName = fnType->GetName();
+            
+            if(fnLoc && strcmp(fnCall->GetId()->GetName(), "length") == 0)
+            {
+                codeGen->GenBuiltInCall(PrintInt, fnLoc, NULL); 
+            }
+
+          }
+        }
+        else if(nae)
+        {
+          Location * arrayLengthLoc = nae->GetArrayLengthLoc();
+          codeGen->GenBuiltInCall(PrintInt, arrayLengthLoc, NULL);
+
         }
        }
        else
@@ -888,7 +934,9 @@ void PrintStmt::Emit()
       {
        if(subscript2)
        {
-         
+         Decl * d = FindDecl(baseField->GetId());
+         VarDecl * v = dynamic_cast<VarDecl *>(d);
+
          Location * indexLoc = codeGen->GenLoadConstant(subscript2->GetValue());
           
          //Error checking on subscript goes here
@@ -920,9 +968,24 @@ void PrintStmt::Emit()
 
          Location * loadLoc = codeGen->GenLoad(addressLoc, 0);
 
-         codeGen->GenBuiltInCall(PrintString, loadLoc, NULL);    
+         Type * arrayType = v->GetDeclaredType();
+         ArrayType * arrayType2 = dynamic_cast<ArrayType *>(arrayType);
+
+         const char * typeName = arrayType2->GetName();
+          
+         Location * returnLoc;
+
+         if(strcmp(typeName, "int[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintInt, loadLoc, NULL);
+         else if(strcmp(typeName, "string[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintString, loadLoc, NULL);
+         else if(strcmp(typeName, "bool[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintBool, loadLoc, NULL);
+           
 
          FnDecl::numBytes+=48;
+  
+
        } 
        else if(subscript3)
        {
@@ -960,8 +1023,27 @@ void PrintStmt::Emit()
 
          Location * loadLoc = codeGen->GenLoad(addressLoc, 0);
 
-         codeGen->GenBuiltInCall(PrintString, loadLoc, NULL);    
+         Type * arrayType = v->GetDeclaredType();
+         ArrayType * arrayType2 = dynamic_cast<ArrayType *>(arrayType);
+
+         const char * typeName = arrayType2->GetName();
+          
+         Location * returnLoc;
+
+         if(strcmp(typeName, "int[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintInt, loadLoc, NULL);
+         else if(strcmp(typeName, "string[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintString, loadLoc, NULL);
+         else if(strcmp(typeName, "bool[]") == 0)
+           returnLoc = codeGen->GenBuiltInCall(PrintBool, loadLoc, NULL);
+           
+
          FnDecl::numBytes+=48;
+  
+
+
+
+
        } 
        else if(subscript4)
        {

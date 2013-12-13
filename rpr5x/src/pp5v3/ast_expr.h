@@ -266,6 +266,9 @@ class NewArrayExpr : public Expr
     void Emit();
     Location * arrayLoc;
     Location * GetLocationNode() {return arrayLoc;}
+    Location * arrayLengthLoc;
+    Location * GetArrayLengthLoc() {return arrayLengthLoc; }
+ 
 };
 
 class ReadIntegerExpr : public Expr

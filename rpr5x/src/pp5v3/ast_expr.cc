@@ -217,7 +217,7 @@ void ArithmeticExpr::Emit()
 void RelationalExpr::Emit()
 {
   //Handle op signs of >, >= and <= slightly different here since MIPS does not support these
-
+  
 
   left->Emit();
   op->Emit();
@@ -238,8 +238,19 @@ void RelationalExpr::Emit()
   if(strcmp(opName, ">") == 0)
   {    
      opName = "<";
-     this->relLoc = codeGen->GenBinaryOp(opName, right->GetLocationNode(), left->GetLocationNode());
-  }
+     if(var1 && i2)
+     {
+      Decl * d1 = FindDecl(var1->GetId());
+      VarDecl * v1 = dynamic_cast<VarDecl *>(d1);
+      Location * varLoc = v1->GetLocationNode();
+      Location * intLoc2 = i2->GetLocationNode();
+      this->relLoc = codeGen->GenBinaryOp(opName, intLoc2, varLoc);
+     }
+     else
+     {
+       this->relLoc = codeGen->GenBinaryOp(opName, right->GetLocationNode(), left->GetLocationNode());
+     }
+       }
   else if(strcmp(opName, ">=") == 0)
   {  
      FnDecl::numBytes+=8;
@@ -1054,7 +1065,7 @@ void AssignExpr::Emit()
   {
      Decl * d1 = FindDecl(left2->GetId());
      VarDecl * v1 = dynamic_cast<VarDecl *>(d1);
- 
+    
 
      if(v1)
      {
@@ -1253,7 +1264,10 @@ void AssignExpr::Emit()
          {
            //Array Subscript is either a constant or a variable.  Handle other expressions later
            if(arraySubscript2)
+           {
               subscriptLoc = codeGen->GenLoadConstant(arraySubscript2->GetValue());
+              FnDecl::numBytes+=4;
+           }
            else if(f1)
            {          
              Decl * d = FindDecl(f1->GetId());
@@ -1900,22 +1914,36 @@ void Call::Emit()
   
   Location * varLoc;
   Location * fnLoc;
+  Location * thisPtr;
+  Location * fnPtr;
+
  
   //Fix this later to be able to load any function from the vtable.  This is
   //used to gain access to the first function in the base class from the derived  //class
-  Location * thisPtr = codeGen->GenLoad(codeGen->ThisPtr, 0);
-  Location * fnPtr = codeGen->GenLoad(thisPtr, 0);
 
+  Node * firstParent = this->GetParent();
+  ClassDecl * firstClassParent = dynamic_cast<ClassDecl *>(firstParent);
+  Program * firstProg = dynamic_cast<Program *>(firstParent);
 
-
-
-
+  while(!firstClassParent && !firstProg)
+  {
+    firstParent = firstParent->GetParent();
+    firstClassParent = dynamic_cast<ClassDecl *>(firstParent);
+    firstProg = dynamic_cast<Program *>(firstParent);
+  }  
+  if(firstClassParent && firstClassParent->GetExtends())
+  {
+    thisPtr = codeGen->GenLoad(codeGen->ThisPtr, 0);
+    fnPtr = codeGen->GenLoad(thisPtr, 0);
+  }
+  
  
   //Check for array.length() here and emit the appropriate code
    
   if(base)
   {
     FieldAccess * baseField = dynamic_cast<FieldAccess *>(base);
+    Call * baseFn = dynamic_cast<Call *>(base);
     
     if(baseField)
     {
@@ -1943,6 +1971,24 @@ void Call::Emit()
          }
       }
     }
+ 
+    else if(baseFn)
+    {
+      /*Decl * baseDecl = FindDecl(baseFn->GetId());
+      FnDecl * f = dynamic_cast<FnDecl *>(baseDecl);
+      if(f) 
+      {
+        Type * fnType = f->GetType();
+        ArrayType * arrayType = dynamic_cast<ArrayType *>(fnType);
+        if(arrayType && strcmp(field->GetName(), "length") == 0)
+        {
+          Location * arrayLoc = f->GetLocationNode(); //Get location of array in the stack
+          Location * lengthLoc = codeGen->GenLoad(arrayLoc, -4); //Get location of the length of the array
+          FnDecl::numBytes+=4;
+          f->arrayLengthLoc = lengthLoc; //Store the length of the array
+        }
+      }*/
+   }
   }
   //Emit code for the actual parameters  
   /*for(int i = actuals->NumElements() - 1; i >= 0; i--)
@@ -2033,9 +2079,9 @@ void Call::Emit()
         classDecl = dynamic_cast<ClassDecl *>(node);
         prog = dynamic_cast<Program *>(node);
       }
-
+   
       Decl * d = FindDecl(f->GetId());
-      
+         
       //Here we are carefully assuming that any function calls will not come from different classes
       if(!d && classDecl)
       {
@@ -2163,6 +2209,7 @@ void Call::Emit()
                  hasReturn = true;
                else
                  hasReturn = false;
+               
                thisLoc = codeGen->GenLoad(codeGen->ThisPtr, 0); //Pointer to "this" reference     
                FnDecl::numBytes+=4;
             }
@@ -2222,14 +2269,14 @@ void Call::Emit()
     {    
       Decl * baseDecl = FindDecl(baseField2->GetId());
       VarDecl * baseVar = dynamic_cast<VarDecl *>(baseDecl);
-      
+      //printf("The var is %p and the function is %s\n", baseField2->GetId(), this->GetId()->GetName()); 
+
       if(baseVar)
       {        
         Type * baseType = baseVar->GetDeclaredType();
         ArrayType * baseArray = dynamic_cast<ArrayType *>(baseType);
         NamedType * baseNameType = dynamic_cast<NamedType *>(baseType);
-
-        //Prevents an ACall from being generated when the array index is something like d[d[0]].
+                //Prevents an ACall from being generated when the array index is something like d[d[0]].
         //if(strcmp(baseVar->GetId()->GetName(), field->GetName()) != 0)
 
         if(!baseArray) //Do not put the "this" reference when the base is an array (this may happen if you call the .length() method)
@@ -2243,6 +2290,7 @@ void Call::Emit()
               
              Location * varLoc = baseVar->GetLocationNode();
              thisLoc = varLoc;
+             //printf("The name is %s and the function is %s\n", baseName, this->GetId()->GetName());
              
           }    
           codeGen->GenPushParam(thisLoc);
@@ -2437,6 +2485,7 @@ void NewArrayExpr::Emit()
   if(sizeInt || sizeArith)
   {
     arraySizeLoc = size->GetLocationNode();
+    this->arrayLengthLoc = arraySizeLoc;
   }
   else
   {
@@ -2446,6 +2495,7 @@ void NewArrayExpr::Emit()
      if(v)
      {
        arraySizeLoc = v->GetLocationNode();
+       this->arrayLengthLoc = arraySizeLoc;
      }
   }
   
